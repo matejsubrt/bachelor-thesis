@@ -1,3 +1,42 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
+Most people travelling within public transit networks these days use a connection searching mobile application for planning their trip. There exist many different options, yet the goal of each one is the same - provide the user with information on how to get from point A to point B within the network. While all of the existing applications are able to find a viable connection, they typically offer little to no customization possibilities to the user. 
+
+This is not a large issue for people who simply want to find out a way to get to their destination. However, every trip is different and serves a different purpose. While sometimes people use public transport to commute between their home and their workplace and want to spend the least possible time travelling, so that they can spend the most of their time doing productive work, other times they may be returning from their vacation with heavy suitcases or travelling with a stroller, and thus would like the connection they use to be more comfortable and do not mind about it taking a few more minutes.
+
+Despite this, due to the universal nature of the most used applications used for this purpose today, there is either no way to adjust the parameters of the search, or the possibilities are very limited. In other words, the existing solutions make compromises to make their apps be as universal as possible, so the results are typically the same or very similar for everyone, regardless of their current needs. This means that people who are rushing to get to a meeting on time may perhaps be shown a connection that takes a few minutes longer than another one, which only has one transfer more, while other people who cannot move quickly during transfers due to carrying a lot of baggage or being disabled may not be able to make the transfers that the app told them to make at all.
+
+Secondly, integration of bikesharing services into public transport networks is getting more and more popular. In Prague alone, more than 750 000 bikesharing trips financed by the city have been made in 2023 by over 60 000 people\cite{ZpravodajPID2024}. Unfortunately however, very few connection search applications take this into account and integrate bikesharing networks into their products.
+
+This is where the application we set out to implement, PragO, comes in. Its goal is to provide users with the personalization possibilities to make their travels with public transit more effective for their specific needs while also including bikesharing within its connection searches. 
+
+\section{Goals}
+
+The goal of this work is to create a mobile application that will enable its users to search for public transit connection within Prague's public transit network (PID), while providing extended customization options to provide each user with more personalized and thus more relevant results. In particular, the application's main goal is to find the best possible connection between 2 points within Prague, which are specified either by a stop's name, or by the point's coordinates. Furthermore, the app should include bikesharing within the resulting connection if its usage improves the connection's parameters.
+
+To achieve this goal, the application will be combining openly accessible data about public transit timetables within the PID system, the current delays of trips within the system and about the current state of Prague's biggest bikesharing services' networks.
+
+\subsection{The intended audience}
+
+As we'll show later, there are many existing options for people who visit Prague for the first time or simply want to find a way from point A to point B within the city's public transit network. However, the options for people who use Prague's public transit on a daily basis and want to use it as effectively as possible are very limited. The existing apps are targeted to the masses and thus need to be kept as simple as possible, which prevents them from allowing their users to properly adjust the parameters of their search to best suit their needs.
+
+Thus, we set out to develop an application for people who use Prague's public transit as a daily tool to get around the city. These people have a lot of experience with using the transit network already and can thus provide valuable input into the connection searching. Thanks to this additional input, our application will be able to personalize their results, which will improve their relevance to the respective users.
+
+\section{Brief overview of the application}
+
+The application works on a server-client basis, separating the responsibilities between the two components. All the responsibilities concerning solving the actual connection searching problem will be handled by the server part of the application, to allow for the client part to be as lightweight as possible and also to make developing other clients for more platforms as easy of a task as possible.
+
+The server side is implemented in the C\# programming language, as it provides a very convenient ratio between execution speed, code readability and extendability, while also being compatible across multiple platforms, ensuring smooth operation on many different machines. For certain sub-problems, such as working with the GTFS Realtime Protobuf files or calculating bike routes within the city, the application uses existing libraries, like \texttt{protobuf-net} or \texttt{Itinero}. More information on the usage of these libraries is provided in later chapters.
+
+The client side of the application is implemented in the Kotlin language, in particular using the Jetpack Compose UI toolkit. As a consequence of this, the app is only compatible with devices running the Android operating system. However, as more than 70\% of all active phones in the Czech Republic use Android\cite{statista_mobile_os}, this ensures that the application is accessible to the majority of users in the target region, maximizing its reach despite only running on a single platform. Furthermore, as all the main responsibilities of the application are handled by the server side, developing a client application requires almost no knowledge about the inner workings and implementation of the server application. Thanks to this, developing another client for another platform (such as iOS) would be relatively simple, as it only needs to support basic functionality, such as storing configuration values, sending API requests and displaying the results.
+
+\section{Thesis structure}
+\begin{enumerate}
+    \item \xxx{Analysis - problem description, other existing solutions, data used}
+    \item \xxx{Design - implementation, solutions, alternatives}
+    \item \xxx{Documentation - user and programmer}
+    \item \xxx{Testing}
+\end{enumerate}
+\xxx{}
+

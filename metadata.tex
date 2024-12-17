@@ -15,53 +15,47 @@
 
 % Thesis title in English (exactly as in the official assignment)
 % (Note: \xxx is a "ToDo label" which makes the unfilled visible. Remove it.)
-\def\ThesisTitle{\xxx{Thesis title}}
+\def\ThesisTitle{User-oriented application for multimodal public transit route search in Prague}
 
 % Author of the thesis (you)
-\def\ThesisAuthor{\xxx{Name Surname}}
+\def\ThesisAuthor{Matěj Šubrt}
 
 % Year when the thesis is submitted
-\def\YearSubmitted{\xxx{YEAR}}
+\def\YearSubmitted{2024}
 
 % Name of the department or institute, where the work was officially assigned
 % (according to the Organizational Structure of MFF UK in English,
 % see https://www.mff.cuni.cz/en/faculty/organizational-structure,
 % or a full name of a department outside MFF)
-\def\Department{\xxx{Name of the department}}
+\def\Department{Department of Software Engineering}
 
 % Is it a department (katedra), or an institute (ústav)?
-\def\DeptType{\xxx{Department}}
+\def\DeptType{Department}
 
 % Thesis supervisor: name, surname and titles
-\def\Supervisor{\xxx{Supername Supersurname}}
+\def\Supervisor{Martin Nečaský}
 
 % Supervisor's department (again according to Organizational structure of MFF)
-\def\SupervisorsDepartment{\xxx{department}}
+\def\SupervisorsDepartment{Department of Software Engineering}
 
 % Study programme (does not apply to rigorosum theses)
-\def\StudyProgramme{\xxx{study programme}}
+\def\StudyProgramme{\xxx{Programming and software development}}
 
 % An optional dedication: you can thank whomever you wish (your supervisor,
 % consultant, who provided you with tea and pizza, etc.)
 \def\Dedication{%
-\xxx{Dedication.}
+I would like to thank my supervisor doc. Mgr. Martin Nečaský, Ph.D. for his help and advice towards this thesis. I would also like to thank my family for supporting me throughout my studies and the work on this thesis.
 }
 
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
 \def\Abstract{%
-\xxx{Use the most precise, shortest sentences that state what problem the
-thesis addresses, how it is approached, pinpoint the exact result achieved, and
-describe the applications and significance of the results. Highlight anything
-novel that was discovered or improved by the thesis. Maximum length is 200
-words, but try to fit into 120. Abstracts are often used for deciding if
-a reviewer will be suitable for the thesis; a well-written abstract thus
-increases the probability of getting a reviewer who will like the thesis.}
+There are many solutions for searching for a public transit connection both worldwide and in the Czech republic. They are however targeted at the widest possible audience, meaning they are simple to use and targeted at a broad area, but lack more advanced configuration options and typically are not optimized for use in single specific cities. This universal design overlooks the fact that most users primarily seek guidance within a particular city along routes they already partially know, and thus can provide valuable input towards optimizing their travels and commutes in the city. The application developed as a part of this thesis addresses these issues and aims to provide customizable and optimized connection searching to people using the Prague public transport network. The application also integrates bikesharing into the connection search, allowing for a more seamless experience for anyone traveling through the city.
 }
 
 % 3 to 5 keywords (recommended) separated by \sep
 % Keywords are useful for indexing and searching for the theses by topic.
 \def\ThesisKeywords{%
-\xxx{keyword\sep key phrase}
+route search \sep open data \sep public transit \sep Prague \sep multimodal transit
 }
 
 % If any of your metadata strings contains TeX macros, you need to provide
@@ -80,14 +74,14 @@ increases the probability of getting a reviewer who will like the thesis.}
 % If you are studing in a Czech programme, you also need to provide metadata in Czech:
 % (in English programmes, this is not used anywhere)
 
-\def\ThesisTitleCS{\xxx{Název práce česky}}
-\def\DepartmentCS{\xxx{Název katedry česky}}
-\def\DeptTypeCS{\xxx{Katedra}}
-\def\SupervisorsDepartmentCS{\xxx{katedra vedoucího}}
-\def\StudyProgrammeCS{\xxx{studijní program}}
+\def\ThesisTitleCS{Uživatelsky orientovaná aplikace pro vyhledávání multimodálních spojení v pražské hromadné dopravě}
+\def\DepartmentCS{Katedra softwarového inženýrství}
+\def\DeptTypeCS{Katedra}
+\def\SupervisorsDepartmentCS{Katedra softwarového inženýrství}
+\def\StudyProgrammeCS{Programování a vývoj software}
 
 \def\ThesisKeywordsCS{%
-\xxx{klíčová slova\sep klíčové fráze}
+vyhledávání tras \sep otevřená data \sep MHD \sep Praha \sep multimodální doprava
 }
 
 \def\AbstractCS{%
