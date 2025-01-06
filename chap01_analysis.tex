@@ -1,10 +1,10 @@
 \chapter{Problem analysis}
 
-This chapter provides details on the problem the application is trying to solve and describes user requirements which specify what functionality the application should provide to its users. It also includes an overview of existing solutions for the connection search problem. Finally, it describes the available data necessary to provide the functionality and its structure.
+This chapter provides details on the problem the application is trying to solve and describes user requirements specifying what functionality the application should provide to its users. It also includes an overview of existing solutions for the connection search problem. Finally, it describes the available data necessary to provide the functionality and its structure.
 
 \section{Problem description}
 
-In this section, we will first introduce the problem's domain and explain all the necessary terms we will be using later. Then we will describe the core of the problem our application is trying to solve.
+We will first introduce the problem's domain and explain all the necessary terms we will be using later. Then we will describe the core of the problem our application is trying to solve.
 
 \subsection{Domain introduction}
 
@@ -14,21 +14,21 @@ In this section, we will first introduce the problem's domain and explain all th
     \label{fig:domain_model}
 \end{figure}
 
-The resulting object we want to produce and show to the user is a \texttt{Connection}. A \texttt{Connection} is a list consisting of public transit \texttt{Trips}, \texttt{Transfers} and \texttt{Bike trips}. 
+The result that we want to produce and show to the user is a \texttt{Connection}. A \texttt{Connection} consists of public transit \texttt{Trips}, \texttt{Transfers} and \texttt{Bike trips}. 
 
-Every \texttt{Trip} serves one \texttt{Route}. A \texttt{Route} consists of a list of \texttt{Stops} and typically corresponds to what is usually known as a line. It has an id, name and a vehicle type describing what vehicle the \texttt{Route} is being served by (i.e. Bus/Tram/Metro/...). However, it is important to note that the relationship between a \texttt{Route} within the context of our application and a real-world line is not always 1:1. Typically, one line will have multiple different variations (shorter variations, variations with vehicles pulling in and out of the depots, variations where not all stops are served, ...). All of these variations will share the same line name, however, each of them is a separate \texttt{Route} with its separate list of \texttt{Stops}.
+Every \texttt{Trip} serves one \texttt{Route}. A \texttt{Route} consists of a sequence of \texttt{Stops} and typically corresponds to what is usually known as a line. Every \texttt{Route} has a name and a vehicle type describing what vehicle the \texttt{Route} is being served by (i.e. Bus/Tram/Metro/...). However, it is important to note that the relationship between a \texttt{Route} within the context of our application and a real-world public transit line is not 1:1. Typically, one line will have multiple different variations (shorter variations, variations with vehicles pulling in and out of the depots, variations where not all stops are served, ...). All of these variations will share the same line name, however, each of them is a separate \texttt{Route} with its separate sequence of \texttt{Stops}.
 
-A \texttt{Trip} consists of a list of \texttt{Stop Times}. A \texttt{Stop Time} specifies both the arrival and departure times of the \texttt{Trip} at the corresponding \texttt{Stop} of the \texttt{Trip}'s \texttt{Route}.
+A \texttt{Trip} corresponds to an actual trip of a public transit vehicle and serves a single \texttt{Route}. It consists of a sequence of \texttt{Stop Times}. A \texttt{Stop Time} specifies both the arrival and departure times of the \texttt{Trip} at the corresponding \texttt{Stop} of the \texttt{Trip}'s \texttt{Route}.
 
 A \texttt{Transfer} represents travel on foot. It consists of two points - the source and the destination \texttt{Route Points}. A \texttt{Route Point} can be either a \texttt{Stop}, a \texttt{Bike Station} or a \texttt{Custom point}.
 
 A \texttt{Stop} represents a single point within the public transit network where it is possible to board or disembark public transit \texttt{Trips}. It is important to mention that a \texttt{Stop} within the context of our application does not directly correspond to what most people imagine under the term. Typically, a "stop" is described by its name, i.e. all boarding points sharing the same name are considered a single "stop". In our context, every single one of these boarding points is its own separate \texttt{Stop}. Within Prague's public transit network, this typically means that each \texttt{Stop} corresponds to a separate stop sign. The set of \texttt{Stops} sharing the same name is called a \texttt{Node}.
 
-A \texttt{Custom point} is an arbitrary point within the connection, specified by its coordinates. Typically, it will be used to provide the user with the opportunity to set the source or target of his search to a specific coordinate point, instead of having to always select a specific \texttt{Stop}.
+A \texttt{Custom point} is an arbitrary point within the connection, specified by its coordinates. Typically, it will be used to provide the user with the opportunity to set the source or target of his search to a specific coordinate point, instead of having to always select a specific \texttt{Stop} or \texttt{Node}.
 
-Finally, a \texttt{Bike Trip} represents travel on a shared bicycle. It consists of a source and destination \texttt{Bike Station}. A \texttt{Bike Station} is a single point within a particular \texttt{Bikesharing system} at which it is possible to borrow and return bicycles. Every \texttt{Bikesharing System} has its own set of \texttt{Bike Stations}, each of which is specified by an id, name and coordinates and has a certain number of currently available bicycles in it. A \texttt{Bike Trip} cannot be performed between \texttt{Bike Stations} that belong to different \texttt{Bikesharing Systems}.
+Finally, a \texttt{Bike Trip} represents travel on a shared bicycle. It consists of a source and destination \texttt{Bike Station}. A \texttt{Bike Station} is a single point within a particular \texttt{Bikesharing system} at which it is possible to borrow and return bicycles. Every \texttt{Bikesharing System} has its own set of \texttt{Bike Stations}, each of which has a name (typically describing its location) and coordinate location and has a certain number of currently available bicycles in it. A \texttt{Bike Trip} cannot be performed between \texttt{Bike Stations} that belong to different \texttt{Bikesharing Systems}.
 
-To collectively describe the three different parts of a \texttt{Connection} (\texttt{Trips}, \texttt{Transfers} and \texttt{Bike Trips}, we will use the term \texttt{Segments}.
+To collectively describe the three different parts of a \texttt{Connection} (\texttt{Trips}, \texttt{Transfers} and \texttt{Bike Trips}), we will use the term \texttt{Segments}.
 
 
 \subsection{Core problem definition}
@@ -37,13 +37,13 @@ The core problem the application is trying to solve is the connection search pro
 
 As stated above, each connection will consist of trips, transfers and bike trips. Between any 2 consecutive trips within a connection, there may be any number of transfers or bike trips. This means that if the connection contains two or more public transit trips, for any 2 consecutive trips within the connection, the sum of durations of the transfers and bike trips between them needs to be less than or equal to the length of the time frame between the first trip's disembark time and the second trip's boarding time.
 
-Furthermore, it is not allowed for two transfers to follow immediately after one another. The same is true for bike trips. This is to prevent the chaining of transfers or bike trips, which would render it useless to set a maximum time or distance for them. It is theoretically possible for 2 trips to follow directly after one another as the first one may arrive at the same exact stop as the second one departs, but for simplicity's sake, we will require a 0 meter long transfer to be inserted in between them in such situations. As it is not possible for bike trips to begin or end in public transit stops, this implies that within the list of trips, transfers and bike trips that a connection consists of, two segments of the same time may never occur directly consecutively.
+Furthermore, it is not allowed for two transfers to follow immediately after one another. The same is true for bike trips. This is to prevent the chaining of transfers or bike trips, which would render it useless to set a maximum time or distance for them. It is theoretically possible for 2 trips to follow directly after one another as the first one may arrive at the same exact stop as the second one departs, but for simplicity's sake, we will require a 0 meter long transfer to be inserted in between them in such situations. This means that within the list of trips, transfers and bike trips that a connection consists of, two segments of the same type may never occur directly consecutively.
 
-Apart from the inclusion of bikesharing, this is the core functionality that any connection planning application must provide. The main goal of our application is to expand the functionality to provide more useful personalization options. These additional problems, features and solutions will be described in following chapters.
+Apart from the inclusion of bikesharing, this is the core functionality that any connection planning application must provide. The main goal of our application is to expand this functionality to provide more useful personalization options. These additional problems, features and solutions will be described in following chapters.
 
 \section{Existing solutions}
 
-As stated above, the goal of this application is to provide people living and working in Prague with a practical way to search for connections within Prague's extensive public transit network. However, there already exist many existing solutions serving the purpose of searching for public transit connections, so why is it necessary to develop another one? To answer this question, we will go over the existing solutions and describe their advantages and shortcomings. From this information, we will derive the requirements for our new, improved way to approach the problem.
+As stated above, the goal of this application is to provide people living and working in Prague with a practical way to search for connections within Prague's extensive public transit network. However, there already are many existing solutions serving the purpose of searching for public transit connections, so why is it necessary to develop another one? To answer this question, we will go over the existing solutions and describe their advantages and shortcomings. From this information, we will derive the requirements for our new, improved way to approach the problem.
 
 The core functionality we explained in the previous chapter is identical for all existing solutions. For this reason, in this chapter we will only describe the functionality each of the solutions provides on top of this.
 
@@ -52,7 +52,7 @@ The core functionality we explained in the previous chapter is identical for all
 First of all, there are many solutions for public transit connection searching that promise to work worldwide and could thus also be used within Prague.
 
 \subsubsection{Maps Google}
-In addition to car and pedestrian routing, Google's Maps also provide routing between 2 points using public transportation. On top of the basics, they also include the option to prioritize certain transport modes and basic filtering options based on the user's comfort preference ("Best route", "Fewer transfers", "Less walking", "Wheelchair accessible"). However, the application also has many shortcomings for a regular public transit user. For instance, there is no way to adjust one's walking pace, search for the absolute fastest connections or to set the maximum distance of transfers and the app does not support bikesharing in its search. The app also does not properly support searching using stop names and uses local names and points of interest instead. Arguably the biggest drawback is the app's UI. While being practical for long-distance connections by providing an overview of general route options, it is very hard to compare the options and find the most suitable one, making this app impractical for short public transit connections within the city (\cref{fig:google_maps_1}). Furthermore, as there is no way to search for a connection without displaying the map, this application is also very data-intensive, which is not desired for a connection searching app.
+In addition to car and pedestrian routing, Google's Maps also provide routing between 2 points using public transportation. On top of the basics, they also include the option to prioritize certain transport modes and basic filtering options based on the user's preferences ("Best route", "Fewer transfers", "Less walking", "Wheelchair accessible"). However, the application also has many shortcomings for a regular public transit user. For instance, there is no way to adjust one's walking pace, search for the absolute fastest connections or to set the maximum distance of transfers and the app does not support bikesharing in its search. The app also does not properly support searching using stop names and uses local names and points of interest instead. Arguably the biggest drawback is the app's UI. While being practical for infrequent long-distance connections by providing an overview of general route options, it is very hard to compare the options and find the most suitable one, making this app impractical for short public transit connections within the city (\cref{fig:google_maps_1}). Furthermore, as there is no way to search for a connection without displaying the map, this application is also very data-intensive, which is not desired in a connection searching app.
 
 \begin{figure}[h!]
     \begin{minipage}[b]{0.45\textwidth}
@@ -142,7 +142,7 @@ All of this multimodal functionality was added to the app fairly recently and on
     \caption{Advanced mode}
     \label{litacka_advanced}
   \end{subfigure}
-  \caption{Comparison of search results in PID Lítačka: (a) classic mode and (b) advanced mode}
+  \caption[Comparison of search results in PID Lítačka]{Comparison of search results in PID Lítačka: (a) classic mode and (b) advanced mode}
   \label{litacka}
 \end{figure}
 
@@ -152,7 +152,7 @@ There are also other applications we have not included in this overview, such as
 
 \subsection{Takeaways from the existing solutions}
 
-Although every app we introduced is different, we can observe some larger trends. For example, the applications are divided in terms of the way they display the results. While some apps display only the structure of the connections together with the used lines' names and some even group the resulting connections into groups according to their structure, other apps display each connection separately while showing not only the line names, but also the specific stops at which the individual trips within the connection get boarded and disembarked. While the first approach requires less screen space and can provide a better overview of all the ways one can travel between the two points, the second approach is better suited to the use case our app is designed for, i.e. searching for a connection within one relatively small and dense city. This is because with this approach, the user can have a better overview of what routes are available at the time they need to travel and even more importantly, they can use the additional routing information to select the best option out of the list of results according to their past traveling experience.
+Although every app we introduced is different, we can observe some larger trends. For example, the applications are divided in terms of the way they display the results. While some apps display only the structure of the connections together with the used lines' names and some even group the resulting connections into groups according to their structure, other apps display each connection separately while showing not only the line names, but also the specific stops at which the individual trips within the connection get boarded and disembarked. While the first approach requires less screen space and can provide a better overview of all the ways one can travel between the two points, the second approach is better suited to the use case our app is designed for, i.e. searching for a connection within one relatively small and dense city. This is because with this approach, the user can have a better overview of what routes are available at the particular time they need to travel and even more importantly, they can use the additional routing information to select the best option out of the list of results according to their past traveling experience.
 
 
 
@@ -160,7 +160,7 @@ Before building our app, we can analyze the features of the existing solutions a
 
 For example, the option to set one's walking (and possibly cycling) pace will improve the relevance of their results, as the durations of transfers and bike trips will better correspond to their habits and preferences, leading to more precise and tailored results. However, even though the user would be able to set their walking pace, there may be situations where they wouldn't be able to walk at their standard pace, such as when transporting heavy luggage or traveling with their older relatives. It would be impractical to assess and change the pace for every connection search. Instead, it would be useful to have the option to set a transfer time buffer value. This could for example be implemented as a simple slider that would be easy and quick to operate before any search that would need it.
 The ability to set the maximum length of a transfer would also help to make the results more personalized, as in some situations, the user may prefer not having to perform longer transfers, even if that would mean that the connection would be shorter in time.
-While some of the existing apps offer some of these features, none provide all of them in a way that would be usable on a day-to-day basis.
+While some of the existing apps offer some of these features, none provides all of them in a way that would be usable on a day-to-day basis.
 
 Furthermore, as mentioned above, on two separate occasions, one person may use public transit for two very different things. For instance, when someone is traveling to a work meeting or a school lecture, they will probably want to use the fastest connection. If they are in a big hurry, they might even want to use more transfers than strictly necessary or risk using very short ones, if it means they will be able to get to their destination quicker. On the other end, there may be situations where the same person needs to travel to the airport or railway station with a lot of luggage. In this case, time may not be the limiting factor. Instead, they might want to take the most comfortable route that takes them to their destination using the least possible transfers. Most existing solutions only offer a simple toggle for only searching for direct connections or only setting the absolute maximum number of used trips. Thus, we would like our app to have a more efficient support for specifying the balance between minimizing time and minimizing the number of necessary transfers.
 
@@ -168,7 +168,7 @@ Many of the apps are also able to display current delay information, but do not 
 
 On another note, including bikesharing services within the connection search will lead to users having more options to choose from when traveling through the city. Using shared bikes can often be a faster and/or more pleasant alternative to taking public transit. Also, the city of Prague currently provides bikesharing rides of up to 15 minutes as part of the public transit tickets, so it would also be helpful to be able to limit the maximum length of bike trips to fit in this time frame.
 
-These are just some of the features that some of the mentioned apps provide, and which we would like to include in our application. To provide a better overview, we present the comparison between the features of the existing solutions and those of our application in the table below. The detailed meaning of each feature is described within the app requirements below the table.
+These are just some of the features that some of the mentioned apps (partially) provide, and which we would like to include in our application. To provide a better overview, we present the comparison between the features of the existing solutions and those of our application in the table below. The detailed meaning of each feature is described within the app requirements below the table.
 
 \subsection{Comparison of the different solutions}
 
@@ -206,33 +206,91 @@ These are just some of the features that some of the mentioned apps provide, and
 \footnotetext[9]{The app's UI displays for every trip the first few available options regardless on whether they are reachable by the previous trips of the connection. Due to this, it is unclear whether the delay is included in the planning}
 
 
-As you can see, most existing apps have very limited possibilities in terms of search personalization options. The only notable exception in this direction is the PID Lítačka app developed by the city of Prague, which added many of the desired features during the last year. Most notably, they recently included bikesharing services within their connection searches, which is a feature that none of the other apps have included yet. However, many of these features were only added after work on our application has commenced, and some features are still missing or implemented only partially. Thus, we set out to implement our own application that would include all of the useful features we mentioned above and would thus be best suited for our target audience. In particular, we set out to fulfill the following functional and qualitative requirements:
+As you can see, most existing apps have very limited possibilities in terms of search personalization options. The only notable exception in this direction is the PID Lítačka app developed by the city of Prague, which added many of the desired features during the last year. Most notably, they recently included bikesharing services within their connection searches, which is a feature that none of the other apps have included yet. However, many of these features were only added after work on our application has commenced, and some features are still missing or implemented only partially. Thus, we set out to implement our own application that would include all of the useful features we mentioned above and would thus be best suited for our target audience. In particular, we set out to fulfill the following requirements:
 
 \newpage
 
 \section{Requirements}
 
+In this section, we present both the functional and qualitative requirements we set out to fulfill with our application. We will introduce the functional requirements in the form of user stories - these are short stories describing \textit{who} wants/needs \textit{what} functionality from the application and \textit{why} they want/need it.
+
 \begin{enumerate}
 \renewcommand{\labelenumi}{\textbf{R\arabic{enumi}}}
 \item The user can use the application to find public transit connections in the PID network between two stops of given names, so that they can find the best way to get to their desired destination
+\label{req:finds_connection}
+
 \item The user can also find public transit connections using their current location as the starting point, so that they don't need to remember the name of each of the stops near them and don't have to select a single one as the start.
+\label{req:src_by_coords}
+
 \item The user can search for a connection by providing the earliest possible departure time from the starting point, or the latest acceptable arrival time at the destination point. This is to support both situations where the user is currently at point A and wants to get to point B as soon as possible, and where the user needs to arrive at point B at a certain time and wants to find out at what time they need to set out.
+\label{req:arr_dep_time}
+
 \item The user can set their own walking pace that will be used for calculating transfer times, so that the results better reflect their abilities.
+\label{req:walking_pace}
+
 \item The user can adjust this walking pace on a search-to-search basis via a transfer buffer setting, so that they can both allow riskier transfers when they are in a hurry and increase the buffer when they are in a situation where they cannot walk at their normal pace.
-\item The user can set the maximum allowed transfer distance, so that they can limit the distance that they would need to walk in situations where they don't want to.
+\label{req:transfer_buffer}
+
+\item The user can set the maximum allowed transfer distance, so that they can limit the distance that they would need to walk in situations where they prefer not to walk too far.
+\label{req:max_transfer_distance}
+
 \item The user can set the balance between prioritizing shortest possible time and least possible transfers, so that they can adjust the search to better reflect their current needs and preferences.
+\label{req:comfort_balance}
+
 \item The user can set the application to include shared bikes in its search algorithm, so that they can see when it might be better to perform a part of the connection on a shared bike instead of taking public transit trips.
+\label{req:shared_bikes}
+
 \item The user can set the maximum time of a bike trip to 15 minutes, so that the trip can be included as part of their public transit subscription and they do not have to pay for it themselves.
+\label{req:bikes_max_15}
+
 \item The user can set their own cycling pace that will be used for calculating bike trip times, so that the results better reflect their abilities.
-\item The user cat set the time it takes them to lock and unlock a shared bike, so that the results better reflect their habits and abilities.
-\item If the user sets the source/destination stop name to a specific name, the application will still allow connections starting/ending at other nearby stops. This helps the user in situations where there are multiple different stops nearby served by different routes. It prevents the user from having to run the search for each of the possible source/destination stops separately. 
+\label{req:cycling_pace}
+
+\item The user can adjust the cycling pace on a search-to-search basis via a bike trip buffer setting, so that they can both allow riskier connections when they are in a hurry and increase the buffer when they want to take their time.
+\label{req:bike_trip_buffer}
+
+\item The user can set the time it takes them to lock and unlock a shared bike, so that the results better reflect their habits and abilities.
+\label{req:lock_unlock_time}
+
+\item For every displayed bike trip, the application will show the user the number of free bikes currently available at its source bike station, so that the user has a better overview of their chances to make the trip.
+\label{req:bike_count}
+
+\item If the user sets the source/destination stop name to a specific name, the application will still allow connections starting/ending at other nearby stops. This helps the user in situations where there are multiple different stops nearby served by different routes. It prevents the user from having to run the search for each of the possible source/destination stops separately.
+\label{req:multiple_src_dest}
+
+\item When the user puts in the name of the source or destination stop, the application will provide them with relevant existing stop name suggestions from which they will be able to choose, so that they do not have to spend more time by typing out the whole exact name.
+\label{req:stop_name_suggestions}
+
 \item The departure and arrival times are displayed to the user exactly in seconds, especially in the metro. This is to provide the user with exact information on how long they have for a transfer, as in the metro, there is a big difference between a 35 seconds and a 85 seconds long transfer, both of which could be rounded to 1 minute.
+\label{req:exact_times}
+
 \item The application will show multiple different results to the user, so that they can easily select the one that suits them the best.
+\label{req:multiple_results}
+
 \item The user can for any used trip in any of the resulting connections display earlier or later alternative trips, so that they know what other alternatives they can take should they not be able to make the one trip the application suggested.
+\label{req:trip_alternatives}
+
 \item For every displayed resulting connection, the application will show the time left until the connection starts. If the connection starts with a walking transfer, it will display both the time left until the user should start walking and the time left until the first trip of the connection leaves. This is so that the user has exact information on when they should leave to make the connection.
+\label{req:countdown}
+
 \item For every trip of every connection, the application will show its current delay, so that the user can have better overview of the current situation within the city.
-\item The application will include and use the delay information during the search and not only add this information to the results. This is to prevent it from presenting connections to the user that are not viable due to the current delay situation.
+\label{req:delays}
+\end{enumerate}
+
+
+Apart from these functional requirements, we also want to fulfill a few qualitative requirements. These specify how the system performs certain functions and what qualities it needs to have while providing the functionality described above. These include the following:
+
+\begin{enumerate}
+\renewcommand{\labelenumi}{\textbf{R\arabic{enumi}}}
+\setcounter{enumi}{20}
+\item The application will include and use the delay information during the search and not only add this information to the (already created) results. This is to prevent it from presenting connections to the user that are not viable due to the current delay situation.
+\label{req:delays_included_in_search}
+
 \item The application needs to keep a relatively low data consumption, to save the user's data consumption. In specific terms, it may not send or receive more than 100kB of data per connection displayed.
+\label{req:low_data}
+
+\item When running the server on a typical modern machine, the response time for at least 90\% of requests needs to be lower than 1 second. This is to prevent users from having to wait too long for their results.
+\label{req:response_time}
 \end{enumerate}
 
 
@@ -250,7 +308,7 @@ The data is available to download from the city website\footnote{http://data.pid
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{img/gtfs_scheme.png}
-    \caption{GTFS format scheme. Source: Pereira, Andrade and Vieira\cite{pereira2023gtfs}.}
+    \caption[GTFS Format Scheme]{GTFS format scheme. Source: Pereira, Andrade and Vieira\cite{pereira2023gtfs}.}
     \label{fig:gtfs_scheme}
 \end{figure}
 
@@ -265,7 +323,7 @@ The data is available to download from the city website\footnote{http://data.pid
 
     \item \texttt{trips.txt}
 
-    This file contains information about all the trips within the network. Every trip references a single line from the \texttt{routes.txt} file. It also has its own id (\textit{trip\_id} through which a trip is referenced in the \texttt{stop\_times.txt} file. Finally it contains a \textit{service\_id}, which refers to an entry within the \texttt{calendars.txt} and \texttt{calendar\_dates.txt} files. The other information like the trip's headsign will not be used by our application.
+    This file contains information about all the trips within the network. Every trip references a single line from the \texttt{routes.txt} file. It also has its own id (\textit{trip\_id}), through which a trip is referenced in the \texttt{stop\_times.txt} file. Finally it contains a \textit{service\_id}, which refers to an entry within the \texttt{calendars.txt} and \texttt{calendar\_dates.txt} files. The other information like the trip's headsign will not be used by our application.
 
     \item \texttt{stop\_times.txt}
 
@@ -284,7 +342,7 @@ The data is available to download from the city website\footnote{http://data.pid
     There are also many additional files with data describing fares, fare zones, guaranteed transfers, metro and train station pathways and trip paths, which our application does not use.
 \end{itemize}
 
-In Prague, this data is updated daily between approximately between 4:00 and 4:30\cite{pidopendata}. It's validity is typically around one to two weeks. Thus, our application needs to refresh this data every day to stay up to date.
+In Prague, this data is updated daily between approximately between 4:00 and 4:30\cite{pidopendata}. It's validity is typically around one to two weeks, but partial changes may happen every day. Thus, our application needs to refresh this data every day to stay up to date.
 
 \subsection{Delay data}
 
@@ -301,7 +359,7 @@ While the GTFS format standardizes data about public transit networks, GBFS (Gen
 \begin{itemize}
     \item \texttt{station\_information.json}
 
-    This file contains static information about the bike stations within the network. In particular, for every station there is a \textit{station\_id}, a \textit{name}, a location (\textit{lat} and \textit{lon}). There also is a lot of additional information, such as the type of the station, its opening hours or rental methods, which we will not be using, as this information is the same for all of Nextbike's stations within Prague. The stations also have a \textit{capacity} property, however, this does not seem relevant in any way in Prague, as this capacity is not enforced in any way and can be exceeded freely, so we will not be using this value either.
+    This file contains static information about the bike stations within the network. In particular, for every station there is a \textit{station\_id}, a \textit{name}, a location (\textit{lat} and \textit{lon}). There also is a lot of additional information, such as the type of the station, its opening hours or rental methods, which we will not be using, as this information is the same for all of Nextbike's stations within Prague. The stations also have a \textit{capacity} property, however, this does not seem relevant in Prague, as this capacity is not enforced in any way and can be exceeded freely, so we will not be using this value either.
 
     \item \texttt{station\_status.json}
 
@@ -314,7 +372,7 @@ While the GTFS format standardizes data about public transit networks, GBFS (Gen
 
 As part of our application, we will need to implement bike routing within the city. In contrast to the public transit trips, the routes of which are directly specified within the data itself, for bikesharing services, we only have the list of stations and need to find the paths between them ourselves. One way to solve this problem would be to use an external routing API, such as the one from Mapy.cz, which provides this exact functionality\cite{mapyczapi}. However, such API's are typically paid, which would be problematic for calculating a large number of connections. Furthermore, as our application will not show the trips on a map, it only needs information about the trip's length and duration and not its exact path. Paying for getting the exact best route when we will not need it seems wasteful, and thus we decided to use our own routing.
 
-As implementing the whole routing functionality would be way out of scope for this project, we have used a library for this purpose, which will be described in detail in following chapters. This library, like all other alternatives that provide this routing functionality, requires map data to function. In particular, it uses the Open Street Maps project and its maps. These maps are provided free of charge for every region in the world. As the maps do not provide smaller granularity within the Czech Republic than the whole country, we will use this country-wide map file from the website\footnote{https://download.geofabrik.de/europe/czech-republic.html}. This file has the \textt{.pbf} format. In our application, we then parse this file into a new \texttt{.routerdb} file, which is a proprietary format that the library uses to provide efficient routing. As the details on the inner implementation of these files are irrelevant for our project, as we do not directly manipulate them, we will not include them within this document.
+As implementing the whole routing functionality would be way out of scope for this project, we have used a library for this purpose, which will be described in detail in following chapters. This library, like all other alternatives that provide this routing functionality, requires map data to function. In particular, it uses the Open Street Maps project and its maps. These maps are provided free of charge for every region in the world. As the maps do not provide smaller granularity within the Czech Republic than the whole country, we will use this country-wide map file from the website\footnote{https://download.geofabrik.de/europe/czech-republic.html}. This file has the \texttt{.pbf} format. In our application, we then parse this file into a new \texttt{.routerdb} file, which is a proprietary format that the library uses to provide efficient routing. As the details on the inner implementation of these files are irrelevant for our project and we do not directly manipulate them, we will not include them within this document.
 
 \subsection{Data that is currently not available}
 

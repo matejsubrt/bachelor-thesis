@@ -69,7 +69,9 @@
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{subcaption}
-\usepackage{cleveref}
+%\usepackage{cleveref}
+\usepackage[sort,noabbrev]{cleveref}
+
 
 \usepackage{dcolumn}        % improved alignment of table columns
 \usepackage{floatrow}       % custom float environments
@@ -122,7 +124,8 @@
 % A simple format with alphanumeric references:
 %\usepackage[natbib,style=alphabetic]{biblatex}
 
-
+\crefname{enumi}{}{}
+\creflabelformat{enumi}{\textbf{R#2#1#3}}
 
 
 % Load the file with bibliography entries
@@ -142,7 +145,10 @@
 %%% Each chapter is kept in a separate file
 \include{preface}
 \include{chap01_analysis}
-\include{chap02}
+\include{chap02_design}
+\include{chap03_user_docs}
+\include{chap04_developer_docs}
+\include{chap05_testing}
 
 \include{epilog}
 
@@ -175,9 +181,10 @@
 %%% source code, data files, interactive charts, etc.). Electronic attachments
 %%% should be uploaded to SIS. Allowed file formats are specified in provision
 %%% of the rector no. 72/2017. Exceptions can be approved by faculty's coordinator.
-\appendix
-\chapter{Attachments}
 
-\section{First Attachment}
+% \appendix
+% \chapter{Attachments}
+
+% \section{First Attachment}
 
 \end{document}
